@@ -31,7 +31,7 @@ def main():
         if not os.path.exists(rec_model_path) or not os.path.exists(surv_model_path):
             print(json.dumps({"status": "error", "message": "Critical Error: Model files missing."}))
             return
-
+        # Ensure variables are reading accurately from frontend payload mapping
         features = {
             'Vegetation_Percentage': float(input_data.get('vegetation_percentage', 12.5)),
             'Water_Nearby': int(1 if input_data.get('water_nearby') in [True, 'true', 1] else 0),

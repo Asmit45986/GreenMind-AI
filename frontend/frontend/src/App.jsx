@@ -11,6 +11,7 @@ const treeLabels = {
   4: "Eucalyptus (Eucalyptus globulus)"
 };
 
+
 function App() {
   const [formData, setFormData] = useState({
     vegetation_percentage: 12.5,
@@ -176,20 +177,22 @@ function App() {
                 <h3 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <ShieldCheck color="#2ecc71" /> ML Model Core Prediction
                 </h3>
-                <div className="metric-row">
-                  <span>Recommended Tree:</span> 
-                  <span className="metric-value">
-                    {(() => {
-                      // Smart lookup for fallback keys if dynamic names differ in nested object
-                      const rawPrediction = report.prediction?.recommended_tree ?? 
-                                            report.prediction?.predicted_label ?? 
-                                            report.prediction?.tree_type ?? 
-                                            report.prediction;
-                      const lookupKey = String(rawPrediction).trim();
-                      return treeLabels[lookupKey] || lookupKey;
-                    })()}
-                  </span>
-                </div>
+                {/* 🔴 IS PURANE WALE BLOCK KO HATAO (Line 126-140 ke aaspas) */}
+<div className="metric-row">
+  <span>Recommended Tree:</span> 
+  <span className="metric-value">
+    {(() => {
+      const rawPrediction = report.prediction?.recommended_tree ?? 
+                            report.prediction?.predicted_label ?? 
+                            report.prediction;
+                            
+      const lookupKey = String(rawPrediction).trim();
+      
+      // Agar backend array se numeric index string ("0", "1") aa rahi hai toh mapper chalega, warna raw text print ho jayega!
+      return treeLabels[lookupKey] || lookupKey;
+    })()}
+  </span>
+</div>
                 <div className="metric-row"><span>Confidence Score:</span> <span>{report.prediction?.confidence_score}</span></div>
                 <div className="metric-row"><span>Survival Probability:</span> <span>{report.prediction?.survival_probability}</span></div>
               </div>
