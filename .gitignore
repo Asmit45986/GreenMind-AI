@@ -1,0 +1,14 @@
+# Exclude heavy datasets
+*Dataset*/
+DeepGlobeDataset/
+dataset/
+
+# Exclude python virtual environments
+ai_env/
+venv/
+.env
+
+# Exclude node modules
+node_modules/
+dist/
+.DS_Store
