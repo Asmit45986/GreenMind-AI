@@ -10,10 +10,12 @@ Markdown
 An advanced full-stack AI platform designed to optimize ecological afforestation strategies. The platform integrates pre-trained Machine Learning models with a production-grade Web architecture to evaluate terrain telemetry and deliver deep environmental and financial analytics.
 
 ---
-
 ## 🚀 Live Demo & Video Walkthrough
-* **Live Web Application:** [Insert Render Frontend Link Here]
+<img width="690" height="750" alt="image" src="https://github.com/user-attachments/assets/a4c5131a-a733-448d-bd2e-fdb13910c258" />
+
+* **Live Web Application:** https://green-mind-juqld1ice-asmitcom.vercel.app/
 * **Project Video Demonstration:** *(Video Walkthrough Link Coming Soon)*
+
 
 ---
 
