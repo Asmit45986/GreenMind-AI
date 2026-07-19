@@ -33,7 +33,10 @@ function App() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/estimate', {
+      const API_URL = "https://greenmind-ai-backend.onrender.com";
+      
+      // FIX: Added 'const response = await fetch' and dynamically linked the API_URL
+      const response = await fetch(`${API_URL}/api/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -41,6 +44,7 @@ function App() {
           tree_count: formData.tree_count
         })
       });
+
       const resData = await response.json();
       if (resData.success) {
         setReport(resData.data);
@@ -49,7 +53,7 @@ function App() {
       }
     } catch (err) {
       console.error(err);
-      alert("Backend Connection Lost! Make sure node server is running on port 5000.");
+      alert("Backend Connection Lost! Render server might be sleeping. Please try again in a few seconds.");
     }
     setLoading(false);
   };
