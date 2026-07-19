@@ -33,7 +33,11 @@ function App() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/estimate', {
+      // 🌐 Render ka live production URL link kiya
+      const API_URL = "https://greenmind-ai-backend.onrender.com";
+      
+      // 🎯 Sahi route path (/api/estimate) ke sath call lagayi
+      const response = await fetch(`${API_URL}/api/estimate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -41,16 +45,16 @@ function App() {
           tree_count: formData.tree_count
         })
       });
+      
       const resData = await response.json();
       if (resData.success) {
         setReport(resData.data);
       } else {
-        // 💡 Yeh alert ab exact server ka issue batayega screen par
         alert(`Pipeline Error: ${resData.error || 'Unknown server error'}`);
       }
     } catch (err) {
       console.error(err);
-      alert("Backend Connection Lost! Make sure node server is running on port 5000.");
+      alert("Backend Connection Lost! Render server might be sleeping. Please try hitting the button again in 10 seconds.");
     }
     setLoading(false);
   };
