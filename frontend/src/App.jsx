@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { Leaf, DollarSign, CloudRain, ShieldCheck } from 'lucide-react';
 import './App.css';
 
+// 🌲 LABEL MAPPER: Apne ML model ke label mappings ke hisab se ise badal lena (e.g., 0: Neem, 1: Teak)
+const treeLabels = {
+  0: "Neem (Azadirachta indica)",
+  1: "Teak (Tectona grandis)",
+  2: "Banyan (Ficus benghalensis)",
+  3: "Mahogany (Swietenia mahagoni)",
+  4: "Eucalyptus (Eucalyptus globulus)"
+};
+
 function App() {
   const [formData, setFormData] = useState({
     vegetation_percentage: 12.5,
     water_nearby: false,
-    land_type_enc: 0, // Mapped according to Label Encoder
-    soil_type_enc: 3, // Mapped according to Label Encoder
+    land_type_enc: 0, 
+    soil_type_enc: 3, 
     ph: 7.2,
     moisture: 18.0,
     temperature: 36.5,
@@ -35,7 +44,6 @@ function App() {
     try {
       const API_URL = "https://greenmind-ai-backend.onrender.com";
       
-      // FIX: Added 'const response = await fetch' and dynamically linked the API_URL
       const response = await fetch(`${API_URL}/api/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -143,7 +151,8 @@ function App() {
                 <h3 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <ShieldCheck color="#2ecc71" /> ML Model Core Prediction
                 </h3>
-                <div className="metric-row"><span>Recommended Tree:</span> <span className="metric-value">{report.prediction.recommended_tree}</span></div>
+                {/* 🎯 CHANGED HERE: Rendered mapped name instead of raw index */}
+                <div className="metric-row"><span>Recommended Tree:</span> <span className="metric-value">{treeLabels[report.prediction.recommended_tree] || report.prediction.recommended_tree}</span></div>
                 <div className="metric-row"><span>Confidence Score:</span> <span>{report.prediction.confidence_score}</span></div>
                 <div className="metric-row"><span>Survival Probability:</span> <span>{report.prediction.survival_probability}</span></div>
               </div>
