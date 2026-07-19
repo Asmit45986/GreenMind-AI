@@ -38,13 +38,16 @@ function App() {
     }));
   };
 
-  const submitPipeline = async (e) => {
+const submitPipeline = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const API_URL = "https://greenmind-ai-backend.onrender.com";
       
-      const response = await fetch(`${API_URL}/api/predict`, {
+      // Pure configuration mapping check karne ke liye console log
+      console.log("Sending Payload Data:", formData);
+
+      const response = await fetch(`${API_URL}/api/estimate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -53,14 +56,23 @@ function App() {
         })
       });
 
+      // Agar response status 200 ya 201 nahi hai toh check karega
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Backend Error Status: ${response.status}`, errorText);
+        throw new Error(`HTTP Error Status: ${response.status}`);
+      }
+
       const resData = await response.json();
+      console.log("Response Received from Backend:", resData);
+
       if (resData.success) {
         setReport(resData.data);
       } else {
-        alert("Pipeline error occurred!");
+        alert("Pipeline error occurred! Check console fields.");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Exact Connection/Fetch Error Details:", err);
       alert("Backend Connection Lost! Render server might be sleeping. Please try again in a few seconds.");
     }
     setLoading(false);
