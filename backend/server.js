@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { execFile } = require('child_process'); // Using execFile instead of exec
+const { execFile } = require('child_process'); 
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -18,7 +18,14 @@ app.post('/api/estimate', (req, res) => {
 
     const projectRoot = path.resolve(__dirname, '..');
     const bridgeScript = path.join(projectRoot, 'backend', 'bridge_controller.py');
-    const venvPython = path.join(projectRoot, 'ai_env', 'Scripts', 'python.exe');
+    
+    // 🌐 DYNAMIC ENVIRONMENT FIX: Detect if running on Render (Linux) or Local (Windows)
+    const isProduction = process.env.NODE_ENV === 'production' || !fs.existsSync(path.join(projectRoot, 'ai_env'));
+    
+    // Render par default globally available 'python3' command use hogi, Windows par tumhara venv
+    const venvPython = isProduction 
+        ? 'python3' 
+        : path.join(projectRoot, 'ai_env', 'Scripts', 'python.exe');
     
     const inputPayload = {
         environmental_data: environmental_data,
@@ -31,10 +38,7 @@ app.post('/api/estimate', (req, res) => {
     console.log(`Executing via execFile: ${venvPython}`);
     console.log(`Arguments: [${bridgeScript}, ${tempFilePath}]`);
 
-    // 💡 execFile runs the executable directly without creating a shell, 
-    // which completely ignores spaces and escaping issues in Windows!
     execFile(venvPython, [bridgeScript, tempFilePath], { cwd: projectRoot }, (error, stdout, stderr) => {
-        // Safe check: Always cleanup the temp file
         if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
         if (error) {
