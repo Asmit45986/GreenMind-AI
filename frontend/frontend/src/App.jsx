@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Leaf, DollarSign, CloudRain, ShieldCheck } from 'lucide-react';
 import './App.css';
 
-// 🌲 LABEL MAPPER: Apne ML model ke label mappings ke hisab se ise badal lena (e.g., 0: Neem, 1: Teak)
+// 🌲 LABEL MAPPER: Matches ML model label outputs to readable names
 const treeLabels = {
   0: "Neem (Azadirachta indica)",
   1: "Teak (Tectona grandis)",
@@ -45,24 +44,48 @@ function App() {
     try {
       const API_URL = "https://greenmind-ai-backend.onrender.com";
       
-      // 🎯 EXACT FIX: /api/predict ko badal kar /api/estimate kar diya
+      // 🎯 STRICT STRUCTURING: Sanitize payload explicitly before hitting backend
+      const payload = {
+        environmental_data: {
+          vegetation_percentage: parseFloat(formData.vegetation_percentage) || 0,
+          water_nearby: Boolean(formData.water_nearby),
+          land_type_enc: parseInt(formData.land_type_enc, 10),
+          soil_type_enc: parseInt(formData.soil_type_enc, 10),
+          ph: parseFloat(formData.ph) || 7.0,
+          moisture: parseFloat(formData.moisture) || 0,
+          temperature: parseFloat(formData.temperature) || 0,
+          rainfall: parseFloat(formData.rainfall) || 0,
+          humidity: parseFloat(formData.humidity) || 0,
+          aqi: parseInt(formData.aqi, 10) || 0,
+          elevation: parseFloat(formData.elevation) || 0,
+          tree_count: parseInt(formData.tree_count, 10) || 0
+        },
+        tree_count: parseInt(formData.tree_count, 10) || 0
+      };
+
+      console.log("🚀 Pipeline Outbox Payload:", payload);
+
+      // 🔄 HIT LOCATION: Hitting the verified operational route endpoint
       const response = await fetch(`${API_URL}/api/estimate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          environmental_data: formData,
-          tree_count: formData.tree_count
-        })
+        body: JSON.stringify(payload)
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP Endpoint Failure: Status ${response.status}`);
+      }
+
       const resData = await response.json();
+      console.log("📥 Pipeline Inbox Response:", resData);
+
       if (resData.success) {
         setReport(resData.data);
       } else {
-        alert("Pipeline error occurred!");
+        alert("Pipeline error occurred inside Model Processing Matrix!");
       }
     } catch (err) {
-      console.error(err);
+      console.error("🛑 Network Pipeline Crash Logs:", err);
       alert("Backend Connection Lost! Render server might be sleeping. Please try again in a few seconds.");
     }
     setLoading(false);
@@ -153,47 +176,41 @@ function App() {
                 <h3 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <ShieldCheck color="#2ecc71" /> ML Model Core Prediction
                 </h3>
-                {/* 🎯 CHANGED HERE: Rendered mapped name instead of raw index */}
-                {/* 🎯 ULTRA FAIL-SAFE FIX: Handles string/number mismatch and dynamic keys */}
-<div className="metric-row">
-  <span>Recommended Tree:</span> 
-  <span className="metric-value">
-    {(() => {
-      // 1. Check inside different possible fields coming from backend
-      const rawPrediction = report.prediction?.recommended_tree ?? 
-                            report.prediction?.predicted_label ?? 
-                            report.prediction?.tree_type ?? 
-                            report.prediction;
-                            
-      // 2. Strict typecast to String and trim spaces
-      const lookupKey = String(rawPrediction).trim();
-      
-      // 3. Return mapped value if found, otherwise return the raw output safely
-      return treeLabels[lookupKey] || lookupKey;
-    })()}
-  </span>
-</div>
-                <div className="metric-row"><span>Confidence Score:</span> <span>{report.prediction.confidence_score}</span></div>
-                <div className="metric-row"><span>Survival Probability:</span> <span>{report.prediction.survival_probability}</span></div>
+                <div className="metric-row">
+                  <span>Recommended Tree:</span> 
+                  <span className="metric-value">
+                    {(() => {
+                      // Smart lookup for fallback keys if dynamic names differ in nested object
+                      const rawPrediction = report.prediction?.recommended_tree ?? 
+                                            report.prediction?.predicted_label ?? 
+                                            report.prediction?.tree_type ?? 
+                                            report.prediction;
+                      const lookupKey = String(rawPrediction).trim();
+                      return treeLabels[lookupKey] || lookupKey;
+                    })()}
+                  </span>
+                </div>
+                <div className="metric-row"><span>Confidence Score:</span> <span>{report.prediction?.confidence_score}</span></div>
+                <div className="metric-row"><span>Survival Probability:</span> <span>{report.prediction?.survival_probability}</span></div>
               </div>
 
               <div style={{ padding: '1rem', background: 'rgba(52, 152, 219, 0.1)', borderRadius: '8px', marginBottom: '1.5rem' }}>
                 <h3 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CloudRain color="#3498db" /> Carbon Offset Analytics
                 </h3>
-                <div className="metric-row"><span>Estimated Active Survival:</span> <span>{report.environmental_impact.active_trees_survived}</span></div>
-                <div className="metric-row"><span>CO₂ Stored (10 Years):</span> <span className="metric-value">{report.environmental_impact.total_co2_sequestration_tons} Tons</span></div>
-                <div className="metric-row"><span>Carbon Credits Earned:</span> <span>{report.environmental_impact.carbon_credits_earned} Credits</span></div>
+                <div className="metric-row"><span>Estimated Active Survival:</span> <span>{report.environmental_impact?.active_trees_survived}</span></div>
+                <div className="metric-row"><span>CO₂ Stored (10 Years):</span> <span className="metric-value">{report.environmental_impact?.total_co2_sequestration_tons} Tons</span></div>
+                <div className="metric-row"><span>Carbon Credits Earned:</span> <span>{report.environmental_impact?.carbon_credits_earned} Credits</span></div>
               </div>
 
               <div style={{ padding: '1rem', background: 'rgba(241, 196, 15, 0.1)', borderRadius: '8px' }}>
                 <h3 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <DollarSign color="#f1c40f" /> Financial Economics
                 </h3>
-                <div className="metric-row"><span>Initial Setup Cost:</span> <span>{report.financial_analytics.initial_setup_cost}</span></div>
-                <div className="metric-row"><span>Total Project Cost:</span> <span>{report.financial_analytics.total_maintenance_cost}</span></div>
-                <div className="metric-row"><span>Est. Carbon Revenue:</span> <span className="metric-value" style={{ color: '#2ecc71' }}>{report.financial_analytics.estimated_gross_revenue}</span></div>
-                <div className="metric-row"><span>Net ROI Return (₹):</span> <span className="metric-value">{report.financial_analytics.net_financial_return}</span></div>
+                <div className="metric-row"><span>Initial Setup Cost:</span> <span>{report.financial_analytics?.initial_setup_cost}</span></div>
+                <div className="metric-row"><span>Total Project Cost:</span> <span>{report.financial_analytics?.total_maintenance_cost}</span></div>
+                <div className="metric-row"><span>Est. Carbon Revenue:</span> <span className="metric-value" style={{ color: '#2ecc71' }}>{report.financial_analytics?.estimated_gross_revenue}</span></div>
+                <div className="metric-row"><span>Net ROI Return (₹):</span> <span className="metric-value">{report.financial_analytics?.net_financial_return}</span></div>
               </div>
             </div>
           )}
