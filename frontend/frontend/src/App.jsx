@@ -210,7 +210,8 @@ function App() {
     try {
       const API_URL = "https://greenmind-ai-backend.onrender.com";
       
-      const response = await fetch(`${API_URL}/api/predict`, {
+      // 🎯 EXACT FIX: /api/predict ko badal kar /api/estimate kar diya
+      const response = await fetch(`${API_URL}/api/estimate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
